@@ -4,6 +4,7 @@
 
 ### Nombre:
 
+
 ## OBJETIVOS
   * Comprender la organización la información de nuestros datos de tal manera que todos los que los vean 
 puedan comprender sus implicaciones y cómo actuar sobre ellos con claridad.
