@@ -1,0 +1,62 @@
+name: Infraestructura + Script SQL en Azure
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-lab3-infra-and-restore:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout del repositorio
+      uses: actions/checkout@v3
+
+    - name: Login a Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.6
+
+    - name: Crear archivo terraform.tfvars
+      run: |
+        echo "subscription_id = \"${{ secrets.SUBSCRIPTION_ID }}\"" > ./terra/terraform.tfvars
+        echo "sqladmin_username = \"${{ secrets.SQL_USERNAME }}\"" >> ./terra/terraform.tfvars
+        echo "sqladmin_password = \"${{ secrets.SQL_PASSWORD }}\"" >> ./terra/terraform.tfvars
+        echo "resource_group_name = \"${{ secrets.RESOURCE_GROUP }}\"" >> ./terra/terraform.tfvars
+        echo "location = \"${{ secrets.LOCATION }}\"" >> ./terra/terraform.tfvars
+    - name: Terraform Init
+      working-directory: ./terra
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: ./terra
+      run: terraform plan -var-file="terraform.tfvars" -out="main.tfplan"
+
+    - name: Terraform Apply
+      working-directory: ./terra
+      run: terraform apply -auto-approve "main.tfplan"
+
+    - name: Instalar módulo SqlServer para PowerShell
+      run: |
+        Install-Module -Name SqlServer -Force -SkipPublisherCheck -AllowClobber
+    - name: Ejecutar script SQL para restauración
+      shell: pwsh
+      run: |
+        $serverName = "${{ secrets.SQL_SERVER }}"
+        $databaseName = "${{ secrets.SQL_DB }}"
+        $username = "${{ secrets.SQL_USERNAME }}"
+        $password = "${{ secrets.SQL_PASSWORD }}"
+        $scriptPath = "bd.sql"
+        if (Test-Path $scriptPath) {
+          $sqlScript = Get-Content -Path $scriptPath -Raw
+          $connectionString = "Server=$serverName;Database=$databaseName;User Id=$username;Password=$password;"
+          Invoke-Sqlcmd -ConnectionString $connectionString -Query $sqlScript
+        } else {
+          Write-Error "No se encontró el archivo $scriptPath"
+          exit 1
+        }

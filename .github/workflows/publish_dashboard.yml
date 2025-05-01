@@ -1,0 +1,30 @@
+name: Deploy Power BI Dashboard
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-powerbi:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+    - name: Upload PBIX via API
+      run: |
+        curl -X POST "https://api.powerbi.com/v1.0/myorg/groups/${{ secrets.PBI_WORKSPACE_ID }}/imports?datasetDisplayName=lab03-DylanTapia" \
+          -H "Authorization: Bearer $(az account get-access-token --resource https://analysis.windows.net/powerbi/api --query accessToken -o tsv)" \
+          -H "Content-Type: multipart/form-data" \
+          -F "file=@lab03-DylanTapia.pbix"
