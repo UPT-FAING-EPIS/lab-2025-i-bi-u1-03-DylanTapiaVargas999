@@ -30,15 +30,15 @@ jobs:
         echo "resource_group_name = \"${{ secrets.RESOURCE_GROUP }}\"" >> ./terra/terraform.tfvars
         echo "location = \"${{ secrets.LOCATION }}\"" >> ./terra/terraform.tfvars
     - name: Terraform Init
-      working-directory: ./terra
+      working-directory: ./infra
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: ./terra
+      working-directory: ./infra
       run: terraform plan -var-file="terraform.tfvars" -out="main.tfplan"
 
     - name: Terraform Apply
-      working-directory: ./terra
+      working-directory: ./infra
       run: terraform apply -auto-approve "main.tfplan"
 
     - name: Instalar módulo SqlServer para PowerShell
