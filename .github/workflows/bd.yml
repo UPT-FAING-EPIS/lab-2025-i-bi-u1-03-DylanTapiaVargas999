@@ -24,11 +24,11 @@ jobs:
 
     - name: Crear archivo terraform.tfvars
       run: |
-        echo "subscription_id = \"${{ secrets.SUBSCRIPTION_ID }}\"" > ./terra/terraform.tfvars
-        echo "sqladmin_username = \"${{ secrets.SQL_USERNAME }}\"" >> ./terra/terraform.tfvars
-        echo "sqladmin_password = \"${{ secrets.SQL_PASSWORD }}\"" >> ./terra/terraform.tfvars
-        echo "resource_group_name = \"${{ secrets.RESOURCE_GROUP }}\"" >> ./terra/terraform.tfvars
-        echo "location = \"${{ secrets.LOCATION }}\"" >> ./terra/terraform.tfvars
+        echo "subscription_id = \"${{ secrets.SUBSCRIPTION_ID }}\"" > ./infra/terraform.tfvars
+        echo "sqladmin_username = \"${{ secrets.SQL_USERNAME }}\"" >> ./infra/terraform.tfvars
+        echo "sqladmin_password = \"${{ secrets.SQL_PASSWORD }}\"" >> ./infra/terraform.tfvars
+        echo "resource_group_name = \"${{ secrets.RESOURCE_GROUP }}\"" >> ./infra/terraform.tfvars
+        echo "location = \"${{ secrets.LOCATION }}\"" >> ./infra/terraform.tfvars
     - name: Terraform Init
       working-directory: ./infra
       run: terraform init
